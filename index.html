@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PHT tương tác – Bài 31. Hệ vận động ở người – KHTN 8</title>
+<style>
+:root{
+  --bg:#f5f7ff; --card:#ffffff; --ink:#22304a; --muted:#667085;
+  --p:#5b5ce2; --p2:#7c3aed; --cyan:#0ea5e9; --good:#138a55; --bad:#d64545;
+  --line:#dfe4ff; --soft:#eef1ff; --warn:#fff6db;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:linear-gradient(135deg,#f7f9ff 0%,#f4efff 50%,#eef9ff 100%);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.5}
+.wrap{max-width:980px;margin:auto;padding:18px 14px 80px}
+.hero{
+  color:#fff;padding:24px 20px;border-radius:22px;
+  background:linear-gradient(135deg,#4f46e5,#7c3aed 58%,#0ea5e9);
+  box-shadow:0 16px 42px rgba(80,72,220,.22)
+}
+.hero h1{font-size:clamp(24px,5vw,42px);margin:0 0 8px;line-height:1.12}
+.hero p{margin:4px 0;opacity:.96}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.badge{background:rgba(255,255,255,.17);border:1px solid rgba(255,255,255,.35);padding:7px 10px;border-radius:999px;font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-top:16px;
+  box-shadow:0 8px 24px rgba(56,65,125,.07)}
+.card h2{margin:0 0 10px;font-size:clamp(20px,4vw,28px);color:#4338ca}
+.card h3{margin:18px 0 8px;color:#5b21b6}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:700px){.grid2{grid-template-columns:1fr}.wrap{padding:10px 10px 70px}.card{padding:15px}}
+label{font-weight:650}
+input[type=text],select{
+ width:100%;padding:11px 12px;border:1.5px solid #cfd5f6;border-radius:12px;font-size:16px;background:#fff;color:var(--ink)
+}
+input[type=text]:focus,select:focus{outline:3px solid #e4e3ff;border-color:#7c3aed}
+.q{padding:14px 0;border-top:1px dashed #dbe0f7}.q:first-of-type{border-top:0}
+.choice{display:block;border:1.5px solid #e0e4f5;border-radius:12px;padding:10px 12px;margin:8px 0;cursor:pointer;background:#fff}
+.choice:hover{background:#f8f7ff}.choice input{margin-right:8px;transform:scale(1.15)}
+.tf-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px dashed #e3e6f5}
+.tf-row:last-child{border-bottom:0}.tf-opts{display:flex;gap:7px}
+.tf-opts label{font-weight:600;border:1px solid #d9def4;border-radius:9px;padding:6px 9px;cursor:pointer}
+.wordbank{display:flex;flex-wrap:wrap;gap:8px;padding:10px;background:#f7f6ff;border-radius:12px;margin:8px 0 12px}
+.word{padding:7px 10px;background:#fff;border:1px solid #cfcaf8;border-radius:999px;font-weight:700;color:#5036b5}
+.blankline{display:grid;grid-template-columns:1fr minmax(150px,260px);gap:10px;align-items:center;margin:10px 0}
+@media(max-width:600px){.blankline{grid-template-columns:1fr}}
+.match{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:720px){.match{grid-template-columns:1fr}}
+.matchitem{padding:10px;border:1px solid #e0e4f5;border-radius:12px;background:#fbfbff}
+.drag-bank{display:flex;flex-wrap:wrap;gap:9px;padding:12px;border:1px dashed #aaa5ea;border-radius:14px;background:#faf9ff;min-height:58px}
+.drag{padding:9px 11px;border-radius:11px;background:#fff;border:1.5px solid #b8b3f3;font-weight:700;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none;-webkit-tap-highlight-color:transparent}
+.drag.selected{outline:3px solid #c4b5fd;background:#f3efff}
+.dropzone{min-height:54px;border:2px dashed #b7bdf0;border-radius:12px;padding:8px;margin:8px 0;background:#fcfcff;touch-action:manipulation}
+.dropzone.over{background:#eeecff;border-color:#7c3aed}
+.dropzone .drag{display:inline-block;margin:3px}
+.stepgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:700px){.stepgrid{grid-template-columns:1fr}}
+.note{background:var(--warn);border:1px solid #f0dda0;border-radius:12px;padding:12px}
+.memory{background:linear-gradient(135deg,#eef2ff,#f7efff);border-left:5px solid #6d5de7;padding:14px;border-radius:12px}
+.actions{position:sticky;bottom:8px;z-index:5;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:18px;
+ background:rgba(255,255,255,.88);backdrop-filter:blur(8px);padding:10px;border:1px solid #dfe3f7;border-radius:16px}
+button{border:0;border-radius:12px;padding:11px 15px;font-weight:800;font-size:15px;cursor:pointer}
+.primary{background:linear-gradient(135deg,#554ce7,#7c3aed);color:#fff}
+.secondary{background:#edf0ff;color:#3d3aa8}.ghost{background:#fff;border:1px solid #ccd2ee;color:#4b5563}
+.feedback{margin-top:9px;font-weight:800}.ok{color:var(--good)}.no{color:var(--bad)}
+.scorebox{display:none;margin-top:14px;padding:16px;border-radius:15px;background:#eefbf5;border:1px solid #b9ead2}
+.small{font-size:13px;color:var(--muted)} .req{color:#d64545}
+.progress{height:10px;background:#e9ecf8;border-radius:99px;overflow:hidden;margin:12px 0 0}.progress>div{height:100%;width:0;background:linear-gradient(90deg,#4f46e5,#0ea5e9);transition:.3s}
+kbd{background:#eef0f8;border:1px solid #cfd3e4;border-bottom-width:2px;padding:1px 5px;border-radius:5px}
+
+#fxCanvas{
+  position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:9999;
+}
+</style>
+</head>
+<body>
+<canvas id="fxCanvas"></canvas>
+<div class="wrap">
+  <section class="hero">
+    <h1>PHIẾU HỌC TẬP TƯƠNG TÁC</h1>
+    <p><b>KHTN 8 – Bài 31. Hệ vận động ở người</b></p>
+    <p>Nội dung: Cấu tạo – chức năng hệ vận động và sơ cứu, băng bó khi gãy xương</p>
+    <div class="badges">
+      <span class="badge">✓ Trắc nghiệm</span><span class="badge">✓ Đúng/Sai</span>
+      <span class="badge">✓ Điền khuyết</span><span class="badge">✓ Nối cột</span>
+      <span class="badge">✓ Kéo thả</span><span class="badge">✓ Tự chấm điểm</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>👤 Thông tin học sinh</h2>
+    <div class="grid2">
+      <div><label>Họ và tên <span class="req">*</span></label><input id="student" type="text" placeholder="Nhập họ và tên"></div>
+      <div><label>Lớp</label><input id="klass" type="text" placeholder="Ví dụ: 8A3"></div>
+    </div>
+    <div class="progress" title="Tiến độ làm bài"><div id="prog"></div></div>
+    <div class="small" id="progText">Tiến độ: 0%</div>
+  </section>
+
+  <section class="card">
+    <h2>🎯 Mục tiêu bài học</h2>
+    <ul>
+      <li>Nêu được các thành phần chính của hệ vận động và cấu tạo cơ bản của bộ xương người.</li>
+      <li>Trình bày được vai trò của xương, cơ, khớp và ý nghĩa của thành phần hữu cơ – chất khoáng trong xương.</li>
+      <li>Sắp xếp và lựa chọn đúng các thao tác sơ cứu, cố định tạm thời khi người khác bị gãy xương tay hoặc gãy xương chân.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="mcq">
+    <h2>🧠 Nhiệm vụ 1. Trắc nghiệm</h2>
+
+    <div class="q" data-kind="radio" data-answer="B">
+      <b>Câu 1.</b> Hệ vận động ở người gồm hai thành phần chính nào?
+      <label class="choice"><input type="radio" name="q1" value="A">A. Xương và da</label>
+      <label class="choice"><input type="radio" name="q1" value="B">B. Bộ xương và hệ cơ</label>
+      <label class="choice"><input type="radio" name="q1" value="C">C. Hệ cơ và hệ tuần hoàn</label>
+      <label class="choice"><input type="radio" name="q1" value="D">D. Xương và dây thần kinh</label>
+      <div class="feedback"></div>
+    </div>
+
+    <div class="q" data-kind="radio" data-answer="C">
+      <b>Câu 2.</b> Bộ xương người trưởng thành có khoảng bao nhiêu xương?
+      <label class="choice"><input type="radio" name="q2" value="A">A. 106</label>
+      <label class="choice"><input type="radio" name="q2" value="B">B. 160</label>
+      <label class="choice"><input type="radio" name="q2" value="C">C. 206</label>
+      <label class="choice"><input type="radio" name="q2" value="D">D. 600</label>
+      <div class="feedback"></div>
+    </div>
+
+    <div class="q" data-kind="radio" data-answer="D">
+      <b>Câu 3.</b> Cách chia bộ xương nào dưới đây phù hợp nhất?
+      <label class="choice"><input type="radio" name="q3" value="A">A. Xương dài – xương ngắn – xương dẹt</label>
+      <label class="choice"><input type="radio" name="q3" value="B">B. Xương cứng – xương mềm – sụn</label>
+      <label class="choice"><input type="radio" name="q3" value="C">C. Xương đầu – xương vai – xương hông</label>
+      <label class="choice"><input type="radio" name="q3" value="D">D. Xương đầu – xương thân – xương chi</label>
+      <div class="feedback"></div>
+    </div>
+
+    <div class="q" data-kind="radio" data-answer="A">
+      <b>Câu 4.</b> Đặc điểm nào giúp xương vừa bền chắc vừa có tính mềm dẻo nhất định?
+      <label class="choice"><input type="radio" name="q4" value="A">A. Có chất hữu cơ và chất khoáng</label>
+      <label class="choice"><input type="radio" name="q4" value="B">B. Chỉ có chất khoáng</label>
+      <label class="choice"><input type="radio" name="q4" value="C">C. Chỉ có chất hữu cơ</label>
+      <label class="choice"><input type="radio" name="q4" value="D">D. Chỉ có nước</label>
+      <div class="feedback"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>✅ Nhiệm vụ 2. Đúng / Sai</h2>
+    <p class="small">Chọn Đúng hoặc Sai cho từng nhận định.</p>
+    <div id="tfBox">
+      <div class="tf-row" data-answer="T"><span><b>1.</b> Hệ cơ ở người có khoảng 600 cơ bám vào xương.</span><span class="tf-opts"><label><input type="radio" name="t1" value="T"> Đúng</label><label><input type="radio" name="t1" value="F"> Sai</label></span></div>
+      <div class="tf-row" data-answer="F"><span><b>2.</b> Nơi tiếp giáp giữa các đầu xương là cơ vân.</span><span class="tf-opts"><label><input type="radio" name="t2" value="T"> Đúng</label><label><input type="radio" name="t2" value="F"> Sai</label></span></div>
+      <div class="tf-row" data-answer="T"><span><b>3.</b> Bộ xương giúp nâng đỡ cơ thể, tạo hình dạng và bảo vệ một số cơ quan.</span><span class="tf-opts"><label><input type="radio" name="t3" value="T"> Đúng</label><label><input type="radio" name="t3" value="F"> Sai</label></span></div>
+      <div class="tf-row" data-answer="T"><span><b>4.</b> Khi cơ co hay giãn, cơ làm xương cử động, giúp cơ thể vận động.</span><span class="tf-opts"><label><input type="radio" name="t4" value="T"> Đúng</label><label><input type="radio" name="t4" value="F"> Sai</label></span></div>
+    </div>
+    <div class="feedback" id="tfFeed"></div>
+  </section>
+
+  <section class="card">
+    <h2>✍️ Nhiệm vụ 3. Điền khuyết</h2>
+    <div class="wordbank"><span class="word">đòn bẩy</span><span class="word">khớp xương</span><span class="word">chất khoáng</span><span class="word">hữu cơ</span></div>
+    <div class="blankline"><span><b>1.</b> Nơi tiếp giáp giữa các đầu xương là …</span><input data-answer="khớp xương" type="text" placeholder="Nhập từ thích hợp"></div>
+    <div class="blankline"><span><b>2.</b> Một số khớp xương tạo kết nối kiểu … giữa các xương.</span><input data-answer="đòn bẩy" type="text" placeholder="Nhập từ thích hợp"></div>
+    <div class="blankline"><span><b>3.</b> Thành phần … giúp xương chịu lực, tạo độ chắc.</span><input data-answer="chất khoáng" type="text" placeholder="Nhập từ thích hợp"></div>
+    <div class="blankline"><span><b>4.</b> Thành phần … góp phần làm xương có tính mềm dẻo.</span><input data-answer="hữu cơ" type="text" placeholder="Nhập từ thích hợp"></div>
+    <div class="feedback" id="fillFeed"></div>
+  </section>
+
+  <section class="card">
+    <h2>🔗 Nhiệm vụ 4. Nối cột</h2>
+    <p>Chọn chức năng phù hợp nhất cho từng thành phần.</p>
+    <div class="match">
+      <div class="matchitem"><b>1. Bộ xương</b><select data-answer="A"><option value="">-- Chọn --</option><option value="A">A. Nâng đỡ, tạo hình dạng, bảo vệ cơ quan</option><option value="B">B. Co – giãn làm xương cử động</option><option value="C">C. Nối các đầu xương, có thể tạo đòn bẩy</option></select></div>
+      <div class="matchitem"><b>2. Cơ bám xương</b><select data-answer="B"><option value="">-- Chọn --</option><option value="A">A. Nâng đỡ, tạo hình dạng, bảo vệ cơ quan</option><option value="B">B. Co – giãn làm xương cử động</option><option value="C">C. Nối các đầu xương, có thể tạo đòn bẩy</option></select></div>
+      <div class="matchitem"><b>3. Khớp xương</b><select data-answer="C"><option value="">-- Chọn --</option><option value="A">A. Nâng đỡ, tạo hình dạng, bảo vệ cơ quan</option><option value="B">B. Co – giãn làm xương cử động</option><option value="C">C. Nối các đầu xương, có thể tạo đòn bẩy</option></select></div>
+    </div>
+    <div class="feedback" id="matchFeed"></div>
+  </section>
+
+  <section class="card">
+    <h2>🧩 Nhiệm vụ 5. Kéo thả – Phân loại bộ xương</h2>
+    <p>Kéo thẻ vào đúng nhóm. Có thể dùng <b>chuột</b> trên máy tính hoặc <b>kéo trực tiếp bằng ngón tay</b> trên điện thoại/máy tính bảng. Ngoài ra vẫn có thể <b>chạm thẻ → chạm vùng đích</b>.</p>
+    <div class="drag-bank" id="boneBank">
+      <span class="drag" draggable="true" data-group="head">Xương sọ</span>
+      <span class="drag" draggable="true" data-group="trunk">Xương cột sống</span>
+      <span class="drag" draggable="true" data-group="limb">Xương tay</span>
+      <span class="drag" draggable="true" data-group="trunk">Xương lồng ngực</span>
+      <span class="drag" draggable="true" data-group="limb">Xương chân</span>
+    </div>
+    <div class="grid2" style="margin-top:10px">
+      <div><b>💀 Xương đầu</b><div class="dropzone" data-group="head"></div></div>
+      <div><b>🫁 Xương thân</b><div class="dropzone" data-group="trunk"></div></div>
+    </div>
+    <div><b>🦵 Xương chi</b><div class="dropzone" data-group="limb"></div></div>
+    <div class="feedback" id="dragFeed"></div>
+  </section>
+
+  <section class="card">
+    <h2>🚑 Nhiệm vụ 6. Sơ cứu gãy xương</h2>
+    <div class="note"><b>Lưu ý an toàn:</b> Sơ cứu nhằm hạn chế cử động vùng gãy và hỗ trợ đưa nạn nhân đến cơ sở y tế. Không tự ý nắn chỉnh xương gãy.</div>
+
+    <h3>A. Gãy xương cẳng tay – sắp xếp 4 bước</h3>
+    <p>Chọn số thứ tự đúng (1 → 4) cho từng thao tác:</p>
+    <div class="stepgrid">
+      <div class="matchitem">Đặt tay bị gãy vào sát thân nạn nhân.<select data-answer="1"><option value="">Thứ tự?</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+      <div class="matchitem">Đặt hai nẹp hai phía cẳng tay, từ khuỷu đến cổ tay và lót bông/gạc mềm.<select data-answer="2"><option value="">Thứ tự?</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+      <div class="matchitem">Dùng dây/băng y tế buộc cố định nẹp.<select data-answer="3"><option value="">Thứ tự?</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+      <div class="matchitem">Dùng khăn vải làm dây đeo cẳng tay trước ngực, cẳng tay vuông góc cánh tay.<select data-answer="4"><option value="">Thứ tự?</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+    </div>
+
+    <h3>B. Gãy xương chân – chọn thao tác còn thiếu</h3>
+    <div class="q" data-kind="radio" data-answer="C">
+      Sau khi đặt nạn nhân nằm trên mặt phẳng, chân duỗi thẳng, thao tác tiếp theo phù hợp nhất là:
+      <label class="choice"><input type="radio" name="qleg" value="A">A. Cho nạn nhân đứng dậy thử đi</label>
+      <label class="choice"><input type="radio" name="qleg" value="B">B. Xoa bóp mạnh vùng chân đau</label>
+      <label class="choice"><input type="radio" name="qleg" value="C">C. Đặt hai nẹp hai phía trong và ngoài chi bị gãy, lót bông/gạc mềm rồi cố định</label>
+      <label class="choice"><input type="radio" name="qleg" value="D">D. Kéo mạnh chân để xương thẳng lại</label>
+      <div class="feedback"></div>
+    </div>
+    <div class="feedback" id="stepFeed"></div>
+  </section>
+
+  <section class="card">
+    <h2>💡 Ghi nhớ cuối bài</h2>
+    <div class="memory">
+      <b>Hệ vận động = Bộ xương + Hệ cơ.</b><br>
+      Bộ xương người trưởng thành có khoảng <b>206 xương</b>, chia thành <b>xương đầu – xương thân – xương chi</b>. Hệ cơ có khoảng <b>600 cơ</b> bám vào xương. Xương gồm chất hữu cơ và chất khoáng, nhờ đó vừa có độ chắc vừa có tính mềm dẻo. Bộ xương nâng đỡ, tạo hình dạng, bảo vệ cơ quan; cơ co – giãn làm xương cử động. Khi gãy xương, cần <b>hạn chế di chuyển, cố định tạm thời đúng cách và đưa nạn nhân đến cơ sở y tế</b>.
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>📊 Kết quả</h2>
+    <div id="scoreBox" class="scorebox"></div>
+    <div class="small">Điểm được tính theo từng ý. Học sinh có thể sửa đáp án rồi bấm “Chấm bài” lại.</div>
+  </section>
+
+  <div class="actions">
+    <button class="primary" onclick="gradeAll()">✅ Chấm bài</button>
+    <button class="secondary" onclick="scrollToFirstBlank()">🔎 Tìm câu chưa làm</button>
+    <button class="ghost" onclick="resetAll()">↺ Làm lại</button>
+  </div>
+</div>
+
+<script>
+const norm = s => (s||"").toLowerCase().trim().replace(/\s+/g," ")
+  .normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d");
+
+let audioCtx=null;
+function getAudio(){
+  if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==="suspended") audioCtx.resume();
+  return audioCtx;
+}
+function tone(freq=740,dur=.09,vol=.07,type="sine",delay=0){
+  try{
+    const a=getAudio(), o=a.createOscillator(), g=a.createGain();
+    o.connect(g); g.connect(a.destination); o.type=type; o.frequency.value=freq;
+    const t=a.currentTime+delay;
+    g.gain.setValueAtTime(.0001,t);
+    g.gain.exponentialRampToValueAtTime(vol,t+.008);
+    g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.start(t); o.stop(t+dur+.02);
+  }catch(e){}
+}
+function selectSound(){
+  tone(660,.07,.045,"sine",0);
+  tone(880,.08,.04,"sine",.055);
+}
+function successSound(){
+  const notes=[523.25,659.25,783.99,1046.5];
+  notes.forEach((n,i)=>tone(n,.20,.075,"triangle",i*.12));
+  setTimeout(()=>{ tone(1318.5,.35,.06,"sine",0); },430);
+}
+function failSound(){
+  tone(260,.13,.055,"triangle",0);
+  tone(196,.18,.05,"triangle",.11);
+}
+function beep(ok=true){ ok?successSound():failSound(); }
+
+document.addEventListener("change", e=>{
+  if(e.target.matches('input[type="radio"], select')) selectSound();
+});
+document.addEventListener("click", e=>{
+  if(e.target.classList && e.target.classList.contains("drag")) selectSound();
+});
+
+const fxCanvas=document.getElementById("fxCanvas");
+const fx=fxCanvas.getContext("2d");
+let particles=[], fxAnim=null;
+function resizeFx(){fxCanvas.width=innerWidth*devicePixelRatio;fxCanvas.height=innerHeight*devicePixelRatio;fx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0)}
+addEventListener("resize",resizeFx); resizeFx();
+
+function burst(x,y,count=70){
+  const palette=["#ff4d6d","#ffd166","#06d6a0","#4cc9f0","#7b2cbf","#ff9f1c","#ffffff"];
+  for(let i=0;i<count;i++){
+    const a=Math.random()*Math.PI*2, s=2+Math.random()*5.5;
+    particles.push({
+      x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1.5,
+      g:.06+Math.random()*.05, life:70+Math.random()*45,
+      r:2+Math.random()*3, c:palette[Math.floor(Math.random()*palette.length)],
+      rot:Math.random()*6.28, vr:(Math.random()-.5)*.25
+    });
+  }
+}
+function fireworks(){
+  burst(innerWidth*.25,innerHeight*.32,85);
+  setTimeout(()=>burst(innerWidth*.75,innerHeight*.28,90),180);
+  setTimeout(()=>burst(innerWidth*.5,innerHeight*.18,100),360);
+  if(!fxAnim) animateFx();
+}
+function animateFx(){
+  fx.clearRect(0,0,innerWidth,innerHeight);
+  particles.forEach(p=>{
+    p.x+=p.vx; p.y+=p.vy; p.vy+=p.g; p.vx*=.992; p.rot+=p.vr; p.life--;
+    fx.save(); fx.translate(p.x,p.y); fx.rotate(p.rot); fx.globalAlpha=Math.max(0,Math.min(1,p.life/35));
+    fx.fillStyle=p.c; fx.fillRect(-p.r,-p.r*.55,p.r*2,p.r*1.1); fx.restore();
+  });
+  particles=particles.filter(p=>p.life>0 && p.y<innerHeight+80);
+  if(particles.length){ fxAnim=requestAnimationFrame(animateFx); }
+  else{ fxAnim=null; fx.clearRect(0,0,innerWidth,innerHeight); }
+}
+
+let selectedDrag=null;
+document.querySelectorAll(".drag").forEach(el=>{
+  el.addEventListener("dragstart",e=>{selectedDrag=el;e.dataTransfer.setData("text/plain","x")});
+  el.addEventListener("click",()=>{document.querySelectorAll(".drag").forEach(x=>x.classList.remove("selected")); selectedDrag=el; el.classList.add("selected")});
+});
+document.querySelectorAll(".dropzone, .drag-bank").forEach(zone=>{
+  zone.addEventListener("dragover",e=>{e.preventDefault();zone.classList.add("over")});
+  zone.addEventListener("dragleave",()=>zone.classList.remove("over"));
+  zone.addEventListener("drop",e=>{e.preventDefault();zone.classList.remove("over");if(selectedDrag){zone.appendChild(selectedDrag);selectSound();}});
+  zone.addEventListener("click",e=>{if(e.target===zone && selectedDrag){zone.appendChild(selectedDrag);selectSound();selectedDrag.classList.remove("selected");selectedDrag=null;updateProgress()}});
+});
+
+// Điều khiển kéo thả bằng cảm ứng tay / bút cảm ứng (Pointer Events)
+let touchDrag = {
+  item:null, ghost:null, pointerId:null, moved:false,
+  startX:0, startY:0, lastZone:null
+};
+
+function clearTouchDrag(){
+  document.querySelectorAll(".dropzone, .drag-bank").forEach(z=>z.classList.remove("over"));
+  if(touchDrag.ghost){ touchDrag.ghost.remove(); }
+  touchDrag={item:null,ghost:null,pointerId:null,moved:false,startX:0,startY:0,lastZone:null};
+}
+
+document.querySelectorAll(".drag").forEach(el=>{
+  el.addEventListener("pointerdown", e=>{
+    // Chuột tiếp tục dùng cơ chế HTML5 drag chuẩn; cảm ứng/bút dùng Pointer Events.
+    if(e.pointerType==="mouse") return;
+    e.preventDefault();
+    touchDrag.item=el;
+    touchDrag.pointerId=e.pointerId;
+    touchDrag.startX=e.clientX;
+    touchDrag.startY=e.clientY;
+    touchDrag.moved=false;
+    selectedDrag=el;
+    document.querySelectorAll(".drag").forEach(x=>x.classList.remove("selected"));
+    el.classList.add("selected");
+    try{ el.setPointerCapture(e.pointerId); }catch(err){}
+  });
+
+  el.addEventListener("pointermove", e=>{
+    if(!touchDrag.item || e.pointerId!==touchDrag.pointerId) return;
+    e.preventDefault();
+    const dx=e.clientX-touchDrag.startX, dy=e.clientY-touchDrag.startY;
+    if(!touchDrag.moved && Math.hypot(dx,dy)>8){
+      touchDrag.moved=true;
+      const r=touchDrag.item.getBoundingClientRect();
+      const g=touchDrag.item.cloneNode(true);
+      g.classList.remove("selected");
+      Object.assign(g.style,{
+        position:"fixed", left:(e.clientX-r.width/2)+"px", top:(e.clientY-r.height/2)+"px",
+        width:r.width+"px", zIndex:"10000", pointerEvents:"none", opacity:".92",
+        transform:"scale(1.04)", boxShadow:"0 10px 28px rgba(45,40,120,.25)"
+      });
+      document.body.appendChild(g);
+      touchDrag.ghost=g;
+    }
+    if(touchDrag.moved && touchDrag.ghost){
+      const r=touchDrag.ghost.getBoundingClientRect();
+      touchDrag.ghost.style.left=(e.clientX-r.width/2)+"px";
+      touchDrag.ghost.style.top=(e.clientY-r.height/2)+"px";
+
+      // Ẩn ghost tạm thời để tìm vùng thả nằm dưới ngón tay.
+      touchDrag.ghost.style.display="none";
+      const under=document.elementFromPoint(e.clientX,e.clientY);
+      touchDrag.ghost.style.display="";
+      const zone=under && under.closest ? under.closest(".dropzone, .drag-bank") : null;
+
+      document.querySelectorAll(".dropzone, .drag-bank").forEach(z=>z.classList.toggle("over", z===zone));
+      touchDrag.lastZone=zone;
+    }
+  });
+
+  el.addEventListener("pointerup", e=>{
+    if(!touchDrag.item || e.pointerId!==touchDrag.pointerId) return;
+    e.preventDefault();
+    if(touchDrag.moved && touchDrag.lastZone){
+      touchDrag.lastZone.appendChild(touchDrag.item);
+      selectSound();
+      touchDrag.item.classList.remove("selected");
+      selectedDrag=null;
+      updateProgress();
+    }else{
+      // Chạm nhanh: giữ cơ chế "chạm thẻ → chạm vùng đích"
+      selectSound();
+    }
+    try{ el.releasePointerCapture(e.pointerId); }catch(err){}
+    clearTouchDrag();
+  });
+
+  el.addEventListener("pointercancel", e=>{
+    if(touchDrag.item && e.pointerId===touchDrag.pointerId) clearTouchDrag();
+  });
+});
+
+document.addEventListener("change",updateProgress);
+document.addEventListener("input",updateProgress);
+
+function updateProgress(){
+  const radios=[...new Set([...document.querySelectorAll('input[type=radio]')].map(x=>x.name))];
+  let done=radios.filter(n=>document.querySelector(`input[name="${n}"]:checked`)).length;
+  let total=radios.length;
+  const texts=[...document.querySelectorAll('.blankline input')]; total+=texts.length; done+=texts.filter(x=>x.value.trim()).length;
+  const sels=[...document.querySelectorAll('select')]; total+=sels.length; done+=sels.filter(x=>x.value).length;
+  const drags=[...document.querySelectorAll('#boneBank .drag')]; total+=1; if(drags.length===0) done+=1;
+  const pct=Math.round(done/total*100);
+  document.getElementById("prog").style.width=pct+"%";
+  document.getElementById("progText").textContent="Tiến độ: "+pct+"%";
+}
+function mark(el, ok, msg){
+  if(!el) return;
+  el.className="feedback "+(ok?"ok":"no");
+  el.textContent=msg;
+}
+function gradeAll(){
+  if(!document.getElementById("student").value.trim()){
+    alert("Em hãy nhập họ và tên trước khi chấm bài nhé!");
+    document.getElementById("student").focus(); return;
+  }
+  let score=0,total=0;
+
+  document.querySelectorAll('.q[data-kind="radio"]').forEach(q=>{
+    total++; const ans=q.dataset.answer;
+    const pick=q.querySelector('input[type=radio]:checked');
+    const ok=pick && pick.value===ans; if(ok)score++;
+    mark(q.querySelector(".feedback"),!!ok,ok?"✓ Chính xác!":pick?"✗ Chưa đúng. Hãy xem lại kiến thức.":"⚠ Em chưa chọn đáp án.");
+  });
+
+  let tfOk=0,tfN=0;
+  document.querySelectorAll("#tfBox .tf-row").forEach((r,i)=>{
+    tfN++;total++; const p=document.querySelector(`input[name="t${i+1}"]:checked`);
+    if(p && p.value===r.dataset.answer){score++;tfOk++;}
+  });
+  mark(document.getElementById("tfFeed"),tfOk===tfN,`Đúng ${tfOk}/${tfN} ý.`);
+
+  let fOk=0,fN=0;
+  document.querySelectorAll(".blankline input").forEach(inp=>{
+    fN++;total++; if(norm(inp.value)===norm(inp.dataset.answer)){score++;fOk++;inp.style.borderColor="#52b788"} else inp.style.borderColor="#e76f51";
+  });
+  mark(document.getElementById("fillFeed"),fOk===fN,`Đúng ${fOk}/${fN} ô.`);
+
+  let mOk=0,mN=0;
+  document.querySelectorAll(".match select").forEach(s=>{mN++;total++;if(s.value===s.dataset.answer){score++;mOk++;}});
+  mark(document.getElementById("matchFeed"),mOk===mN,`Nối đúng ${mOk}/${mN} ý.`);
+
+  let dOk=0,dN=0;
+  document.querySelectorAll(".dropzone").forEach(z=>{
+    [...z.querySelectorAll(".drag")].forEach(x=>{dN++;total++; if(x.dataset.group===z.dataset.group){score++;dOk++;}});
+  });
+  [...document.querySelectorAll("#boneBank .drag")].forEach(x=>{dN++;total++;});
+  mark(document.getElementById("dragFeed"),dOk===5&&dN===5,`Phân loại đúng ${dOk}/5 thẻ.`);
+
+  let sOk=0,sN=0;
+  document.querySelectorAll(".stepgrid select").forEach(s=>{sN++;total++;if(s.value===s.dataset.answer){score++;sOk++;}});
+  mark(document.getElementById("stepFeed"),sOk===sN,`Sắp xếp đúng ${sOk}/${sN} bước gãy xương cẳng tay.`);
+
+  const pct=Math.round(score/total*100), point=(score/total*10).toFixed(1);
+  const name=document.getElementById("student").value.trim();
+  let msg=pct>=90?"Rất tốt! Em nắm kiến thức rất chắc.":pct>=75?"Tốt! Em chỉ cần rà lại vài ý nhỏ.":pct>=50?"Em đã hiểu phần chính, hãy xem lại những câu báo đỏ.":"Em nên đọc lại phần ghi nhớ và làm lại từng nhiệm vụ.";
+  const box=document.getElementById("scoreBox"); box.style.display="block";
+  box.innerHTML=`<b>${name}</b> – Kết quả: <b>${score}/${total}</b> ý đúng ≈ <b>${point}/10</b> (${pct}%).<br>${msg}`;
+  if(pct>=50){
+    successSound();
+    fireworks();
+  }else{
+    failSound();
+  }
+  box.scrollIntoView({behavior:"smooth",block:"center"});
+}
+function scrollToFirstBlank(){
+  const groups=[...new Set([...document.querySelectorAll('input[type=radio]')].map(x=>x.name))];
+  for(const n of groups){if(!document.querySelector(`input[name="${n}"]:checked`)){const e=document.querySelector(`input[name="${n}"]`);e.scrollIntoView({behavior:"smooth",block:"center"});e.focus();return;}}
+  const t=[...document.querySelectorAll(".blankline input")].find(x=>!x.value.trim()); if(t){t.scrollIntoView({behavior:"smooth",block:"center"});t.focus();return;}
+  const s=[...document.querySelectorAll("select")].find(x=>!x.value); if(s){s.scrollIntoView({behavior:"smooth",block:"center"});s.focus();return;}
+  if(document.querySelectorAll("#boneBank .drag").length){document.getElementById("boneBank").scrollIntoView({behavior:"smooth",block:"center"});return;}
+  alert("Em đã trả lời tất cả các phần. Có thể bấm “Chấm bài”!");
+}
+function resetAll(){
+  if(!confirm("Xóa toàn bộ đáp án để làm lại?")) return;
+  document.querySelectorAll('input[type=radio]').forEach(x=>x.checked=false);
+  document.querySelectorAll('.blankline input').forEach(x=>{x.value="";x.style.borderColor=""});
+  document.querySelectorAll('select').forEach(x=>x.value="");
+  document.querySelectorAll('.feedback').forEach(x=>{x.textContent="";x.className="feedback"});
+  const bank=document.getElementById("boneBank");
+  document.querySelectorAll(".dropzone .drag").forEach(x=>bank.appendChild(x));
+  document.getElementById("scoreBox").style.display="none";
+  updateProgress(); window.scrollTo({top:0,behavior:"smooth"});
+}
+updateProgress();
+</script>
+</body>
+</html>
